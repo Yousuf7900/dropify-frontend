@@ -1,16 +1,36 @@
 import { Helmet } from "react-helmet-async";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import SocialSignin from "../components/SocialSignin";
 import useAuth from "../hooks/useAuth";
 import { useForm } from "react-hook-form";
+import usePublic from "../hooks/usePublic";
 
 const Login = () => {
     const { signIn } = useAuth();
+    const navigate = useNavigate();
     const { register, handleSubmit } = useForm();
+    const axiosPublic = usePublic();
     const onSubmit = (data) => {
         signIn(data.email, data.password)
             .then(res => {
-                console.log(res.user);
+                const user = res.user;
+                const userData = {
+                    name: user.displayName,
+                    email: user.email,
+                    photoURL: user.photoURL,
+                    role: 'user',
+                    createdAt: user.metadata.createdAt,
+                    lastLoginAt: user.metadata.lastLoginAt,
+                    uid: user.uid
+                };
+                axiosPublic.patch('/users', userData)
+                    .then(res => {
+                        console.log(res.data);
+                        navigate('/');
+                    })
+                    .catch(err => {
+                        console.log(err.message);
+                    })
             })
             .catch(err => {
                 console.log(err.message);

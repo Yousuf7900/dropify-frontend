@@ -2,6 +2,7 @@ import { FaGoogle } from "react-icons/fa";
 import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router";
 import usePublic from "../hooks/usePublic";
+import Swal from "sweetalert2";
 
 const SocialSignin = () => {
     const navigate = useNavigate();
@@ -11,7 +12,6 @@ const SocialSignin = () => {
         googleSignin()
             .then(res => {
                 const user = res.user;
-                console.log(user);  // firebase log
                 const userData = {
                     name: user.displayName,
                     email: user.email,
@@ -25,6 +25,18 @@ const SocialSignin = () => {
                 axiosPublic.patch('/users', userData)
                     .then(res => {
                         console.log(res.data);
+                        const name = user.displayName || "there";
+                        Swal.fire({
+                            title: `Welcome, ${name} Nigga!`,
+                            text: "Authentication successful.",
+                            icon: "success",
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = "/";
+                        });
+
+
                     })
                     .catch(err => {
                         console.log(err.message);
