@@ -1,60 +1,43 @@
 import { NavLink } from "react-router";
+import useAuth from "../hooks/useAuth";
+import { FaHome, FaBoxOpen, FaInfoCircle, FaEnvelope, FaSignInAlt, FaUserPlus, FaSignOutAlt } from "react-icons/fa";
+import { FaPerson } from "react-icons/fa6";
 
 const NavBar = () => {
+    const { user, logOut } = useAuth();
+
+    const linkClass = ({ isActive }) =>
+        `flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${isActive
+            ? "bg-base-200 text-base-content"
+            : "text-base-content/70 hover:bg-base-200 hover:text-base-content"
+        }`;
+
     const links = (
         <>
             <li>
-                <NavLink
-                    to={"/"}
-                    className={({ isActive }) =>
-                        `rounded-lg px-3 py-2 text-sm font-medium transition ${isActive
-                            ? "bg-base-200 text-base-content"
-                            : "text-base-content/70 hover:bg-base-200 hover:text-base-content"
-                        }`
-                    }
-                >
+                <NavLink to={"/"} className={linkClass}>
+                    <FaHome className="text-base" />
                     Home
                 </NavLink>
             </li>
 
             <li>
-                <NavLink
-                    to={"/products"}
-                    className={({ isActive }) =>
-                        `rounded-lg px-3 py-2 text-sm font-medium transition ${isActive
-                            ? "bg-base-200 text-base-content"
-                            : "text-base-content/70 hover:bg-base-200 hover:text-base-content"
-                        }`
-                    }
-                >
+                <NavLink to={"/products"} className={linkClass}>
+                    <FaBoxOpen className="text-base" />
                     Products
                 </NavLink>
             </li>
 
             <li>
-                <NavLink
-                    to={"/about"}
-                    className={({ isActive }) =>
-                        `rounded-lg px-3 py-2 text-sm font-medium transition ${isActive
-                            ? "bg-base-200 text-base-content"
-                            : "text-base-content/70 hover:bg-base-200 hover:text-base-content"
-                        }`
-                    }
-                >
+                <NavLink to={"/about"} className={linkClass}>
+                    <FaInfoCircle className="text-base" />
                     About
                 </NavLink>
             </li>
 
             <li>
-                <NavLink
-                    to={"/contact"}
-                    className={({ isActive }) =>
-                        `rounded-lg px-3 py-2 text-sm font-medium transition ${isActive
-                            ? "bg-base-200 text-base-content"
-                            : "text-base-content/70 hover:bg-base-200 hover:text-base-content"
-                        }`
-                    }
-                >
+                <NavLink to={"/contact"} className={linkClass}>
+                    <FaEnvelope className="text-base" />
                     Contact
                 </NavLink>
             </li>
@@ -64,7 +47,9 @@ const NavBar = () => {
     return (
         <div>
             <div className="navbar bg-base-100 shadow-sm px-3 md:px-6">
+                {/* LEFT */}
                 <div className="navbar-start">
+                    {/* Mobile Menu */}
                     <div className="dropdown">
                         <div
                             tabIndex={0}
@@ -96,6 +81,7 @@ const NavBar = () => {
                         </ul>
                     </div>
 
+                    {/* Logo */}
                     <a href="/" className="group inline-flex items-center gap-2 px-1 py-1">
                         <span className="relative text-[19px] font-extrabold tracking-tight text-base-content">
                             Dropify
@@ -104,35 +90,66 @@ const NavBar = () => {
                     </a>
                 </div>
 
+                {/* CENTER */}
                 <div className="navbar-center hidden lg:flex">
                     <ul className="menu menu-horizontal px-1 gap-1">{links}</ul>
                 </div>
 
-                <div className="navbar-end gap-2">
-                    <li className="list-none">
-                        <NavLink
-                            to={"/login"}
-                            className={({ isActive }) =>
-                                `btn btn-sm md:btn-md rounded-xl font-semibold normal-case ${isActive ? "btn-neutral" : "btn-ghost hover:bg-base-200"
-                                }`
-                            }
-                        >
-                            Login
-                        </NavLink>
-                    </li>
+                {/* RIGHT */}
+                {user?.email ? (
+                    <div className="navbar-end gap-2">
+                        {/* User */}
+                        <div className="hidden md:flex items-center gap-2 rounded-xl bg-base-200 px-3 py-2">
+                            <div className="avatar">
+                                <div className="w-8 rounded-full ring ring-base-300 ring-offset-base-100 ring-offset-2">
+                                    <img
+                                        src={user?.photoURL || <FaPerson></FaPerson>}
+                                        alt="user"
+                                    />
+                                </div>
+                            </div>
+                            <div className="leading-tight">
+                                <p className="text-sm font-semibold text-base-content">
+                                    {user?.displayName || "User"}
+                                </p>
+                                <p className="text-xs text-base-content/60">
+                                    {user?.email}
+                                </p>
+                            </div>
+                        </div>
 
-                    <li className="list-none">
-                        <NavLink
-                            to={"/register"}
-                            className={({ isActive }) =>
-                                `btn btn-sm md:btn-md rounded-xl font-semibold normal-case ${isActive ? "btn-primary" : "btn-primary"
-                                }`
-                            }
-                        >
-                            Register
-                        </NavLink>
-                    </li>
-                </div>
+                        {/* Logout */}
+                        <button onClick={() => logOut()} className="btn btn-accent btn-sm md:btn-md rounded-xl font-semibold normal-case">
+                            <FaSignOutAlt />
+                            Logout
+                        </button>
+                    </div>
+                ) : (
+                    <div className="navbar-end gap-2">
+                        <li className="list-none">
+                            <NavLink
+                                to={"/login"}
+                                className={({ isActive }) =>
+                                    `btn btn-sm md:btn-md rounded-xl font-semibold normal-case ${isActive ? "btn-neutral" : "btn-ghost hover:bg-base-200"
+                                    }`
+                                }
+                            >
+                                <FaSignInAlt />
+                                Login
+                            </NavLink>
+                        </li>
+
+                        <li className="list-none">
+                            <NavLink
+                                to={"/register"}
+                                className="btn btn-sm md:btn-md rounded-xl font-semibold normal-case btn-primary"
+                            >
+                                <FaUserPlus />
+                                Register
+                            </NavLink>
+                        </li>
+                    </div>
+                )}
             </div>
         </div>
     );

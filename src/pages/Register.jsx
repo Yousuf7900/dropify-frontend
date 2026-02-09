@@ -5,6 +5,7 @@ import useAuth from "../hooks/useAuth";
 import SocialSignin from "../components/SocialSignin";
 import { updateProfile } from "firebase/auth";
 import usePublic from "../hooks/usePublic";
+import Swal from "sweetalert2";
 
 const Register = () => {
     const { createUser } = useAuth();
@@ -32,6 +33,15 @@ const Register = () => {
                 axiosPublic.patch('/users', userData)
                     .then(res => {
                         console.log(res.data);
+                        Swal.fire({
+                            title: `Welcome, ${data.name} Nigga!`,
+                            text: "Authentication successful.",
+                            icon: "success",
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = "/";
+                        });
                         navigate('/');
                     })
                     .catch(err => {

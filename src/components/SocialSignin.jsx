@@ -35,8 +35,6 @@ const SocialSignin = () => {
                         }).then(() => {
                             window.location.href = "/";
                         });
-
-
                     })
                     .catch(err => {
                         console.log(err.message);

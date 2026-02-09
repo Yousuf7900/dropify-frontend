@@ -4,6 +4,7 @@ import SocialSignin from "../components/SocialSignin";
 import useAuth from "../hooks/useAuth";
 import { useForm } from "react-hook-form";
 import usePublic from "../hooks/usePublic";
+import Swal from "sweetalert2";
 
 const Login = () => {
     const { signIn } = useAuth();
@@ -26,6 +27,16 @@ const Login = () => {
                 axiosPublic.patch('/users', userData)
                     .then(res => {
                         console.log(res.data);
+                        const name = user.displayName || "there";
+                        Swal.fire({
+                            title: `Welcome, ${name} Nigga!`,
+                            text: "Authentication successful.",
+                            icon: "success",
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            window.location.href = "/";
+                        });
                         navigate('/');
                     })
                     .catch(err => {
