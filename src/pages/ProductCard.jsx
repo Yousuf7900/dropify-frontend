@@ -28,7 +28,7 @@ const ProductCard = ({ product }) => {
                     {tags.slice(0, 3).map((tag, index) => (
                         <span
                             key={index}
-                            className="text-[11px] px-2 py-[2px] rounded-full bg-base-200 text-base-content/70"
+                            className="text-[11px] px-2 py-0.5 rounded-full bg-base-200 text-base-content/70"
                         >
                             #{tag}
                         </span>
