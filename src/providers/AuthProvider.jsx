@@ -3,6 +3,7 @@ import { AuthContext } from "../contexts/AuthContext";
 import { auth } from "../firebase/firebase_config";
 import { createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut } from "firebase/auth";
 import usePublic from "../hooks/usePublic";
+import Loading from "../pages/Loading";
 
 
 const AuthProvider = ({ children }) => {
@@ -57,6 +58,10 @@ const AuthProvider = ({ children }) => {
             () => unsubscribe()
         );
     }, [axiosPublic]);
+
+    if (loading) {
+        return <Loading></Loading>
+    }
 
     const authInfo = {
         user,

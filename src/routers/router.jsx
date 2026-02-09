@@ -7,6 +7,8 @@ import Contact from "../pages/Contact";
 import Error from "../pages/Error";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
+import AddProduct from "../pages/AddProduct";
+import PrivateRouter from "./PrivateRouter";
 const router = createBrowserRouter([
     {
         path: '/',
@@ -20,6 +22,10 @@ const router = createBrowserRouter([
             {
                 path: '/products',
                 element: <Products></Products>
+            },
+            {
+                path: '/add-product',
+                element: <PrivateRouter><AddProduct></AddProduct></PrivateRouter>
             },
             {
                 path: '/about',

@@ -1,10 +1,40 @@
-import { NavLink } from "react-router";
+import { NavLink, useNavigate } from "react-router";
 import useAuth from "../hooks/useAuth";
-import { FaHome, FaBoxOpen, FaInfoCircle, FaEnvelope, FaSignInAlt, FaUserPlus, FaSignOutAlt } from "react-icons/fa";
-import { FaPerson } from "react-icons/fa6";
+import { FaHome, FaBoxOpen, FaInfoCircle, FaEnvelope, FaSignInAlt, FaUserPlus, FaSignOutAlt, FaProductHunt } from "react-icons/fa";
+import { FaPerson, FaUpload } from "react-icons/fa6";
+import Swal from "sweetalert2";
 
 const NavBar = () => {
     const { user, logOut } = useAuth();
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+        Swal.fire({
+            title: "Log out of Dropify?",
+            text: "You’ll need to sign in again to access your account.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, log out",
+            cancelButtonText: "Stay logged in",
+            confirmButtonColor: "#ef4444",
+            cancelButtonColor: "#6b7280",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                logOut().then(() => {
+                    Swal.fire({
+                        title: "Logged out",
+                        text: "You’ve been safely signed out.",
+                        icon: "success",
+                        timer: 1200,
+                        showConfirmButton: false
+                    });
+                    navigate('/');
+                });
+            }
+        });
+
+    }
 
     const linkClass = ({ isActive }) =>
         `flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition ${isActive
@@ -25,6 +55,12 @@ const NavBar = () => {
                 <NavLink to={"/products"} className={linkClass}>
                     <FaBoxOpen className="text-base" />
                     Products
+                </NavLink>
+            </li>
+            <li>
+                <NavLink to={"/add-product"} className={linkClass}>
+                    <FaUpload className="text-base" />
+                    Add Product
                 </NavLink>
             </li>
 
@@ -119,10 +155,14 @@ const NavBar = () => {
                         </div>
 
                         {/* Logout */}
-                        <button onClick={() => logOut()} className="btn btn-accent btn-sm md:btn-md rounded-xl font-semibold normal-case">
-                            <FaSignOutAlt />
+                        <button
+                            onClick={handleLogout}
+                            className="btn btn-sm md:btn-md rounded-xl font-semibold normal-case bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 hover:border-red-300 transition-all duration-200 ease-in-out flex items-center gap-2"
+                        >
+                            <FaSignOutAlt className="text-base" />
                             Logout
                         </button>
+
                     </div>
                 ) : (
                     <div className="navbar-end gap-2">
