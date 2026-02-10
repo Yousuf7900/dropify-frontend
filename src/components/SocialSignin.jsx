@@ -18,10 +18,13 @@ const SocialSignin = () => {
                     photoURL: user.photoURL,
                     uid: user.uid,
                     role: 'user',
+                    subscription: false,
+                    subscriptionPlan: 'basic',
+                    authProvider: user.providerData[0]?.providerId || "password",
+                    isBlocked: false,
                     createdAt: user.metadata.createdAt,
                     lastLoginAt: user.metadata.lastLoginAt
                 };
-
                 axiosPublic.patch('/users', userData)
                     .then(res => {
                         console.log(res.data);

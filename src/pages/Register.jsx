@@ -25,11 +25,16 @@ const Register = () => {
                     name: data.name,
                     email: data.email,
                     photoURL: data.photoURL,
+                    uid: createdUser.uid,
                     role: 'user',
+                    subscription: false,
+                    subscriptionPlan: 'basic',
+                    authProvider: createdUser.providerData[0]?.providerId || "password",
+                    isBlocked: false,
                     createdAt: createdUser.metadata.createdAt,
-                    lastLoginAt: createdUser.metadata.lastLoginAt,
-                    uid: createdUser.uid
+                    lastLoginAt: createdUser.metadata.lastLoginAt
                 };
+
                 axiosPublic.patch('/users', userData)
                     .then(res => {
                         console.log(res.data);

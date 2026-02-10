@@ -62,9 +62,26 @@ const AddProduct = () => {
 
                 }
             })
-            .catch(err => {
-                console.log(err.message)
-            })
+            .catch((err) => {
+                const statusCode = err?.response?.status;
+                const message = err?.response?.data?.message;
+
+                if (statusCode === 403) {
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Limit reached",
+                        text: message || "Free users can add only 1 product. Please subscribe.",
+                        confirmButtonText: "Okay"
+                    });
+                    return;
+                }
+
+                Swal.fire({
+                    icon: "error",
+                    title: "Something went wrong",
+                    text: "Please try again.",
+                });
+            });
     }
 
     const handleAddition = (tag) => {
