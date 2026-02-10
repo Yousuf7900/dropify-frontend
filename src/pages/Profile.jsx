@@ -63,6 +63,7 @@ const Profile = () => {
                                     src={user.photoURL}
                                     alt="Profile"
                                     className="w-full h-full object-cover"
+                                    referrerPolicy="no-referrer"
                                 />
                             ) : (
                                 <FaUserCircle className="text-3xl text-base-content/40" />

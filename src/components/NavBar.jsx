@@ -34,6 +34,13 @@ const NavBar = () => {
                     Products
                 </NavLink>
             </li>
+            
+            <li>
+                <NavLink to="/contact" className={linkClass}>
+                    <FaEnvelope className="text-base" />
+                    Contact
+                </NavLink>
+            </li>
 
             <li>
                 <NavLink to="/about" className={linkClass}>
@@ -42,12 +49,6 @@ const NavBar = () => {
                 </NavLink>
             </li>
 
-            <li>
-                <NavLink to="/contact" className={linkClass}>
-                    <FaEnvelope className="text-base" />
-                    Contact
-                </NavLink>
-            </li>
         </>
     );
 

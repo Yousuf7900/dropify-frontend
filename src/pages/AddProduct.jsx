@@ -78,7 +78,7 @@ const AddProduct = () => {
     return (
         <div className="max-w-5xl mx-auto px-4 py-6">
             <div className="bg-base-100 p-6 md:p-8 rounded-2xl border border-base-200 shadow-sm">
-                <h1 className="text-3xl font-bold mb-2">Add New Product</h1>
+                <h1 className="text-3xl font-bold mb-2">Submit your Product</h1>
                 <p className="text-base-content/60 mb-8">
                     Submit your tech product for review. Once approved by a moderator,
                     it will be visible to the community.

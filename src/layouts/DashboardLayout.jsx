@@ -1,14 +1,122 @@
 import { NavLink, Outlet, useNavigate } from "react-router";
-import { FaHome, FaBoxOpen, FaPlusCircle, FaListAlt, FaSignOutAlt } from "react-icons/fa";
+import { FaHome, FaBoxOpen, FaSignOutAlt, FaUser } from "react-icons/fa";
 import useAuth from "../hooks/useAuth";
 
 const DashboardLayout = () => {
     const { user, logOut } = useAuth();
     const navigate = useNavigate();
 
+
     const linkClass = ({ isActive }) =>
         `rounded-xl px-3 py-2 transition flex items-center gap-3 ${isActive ? "bg-base-300 font-semibold" : "hover:bg-base-200"
         }`;
+
+    const commonLinks = <>
+        <li>
+            <NavLink to="/" className={linkClass}>
+                <FaHome className="text-base-content/70" />
+                Home
+            </NavLink>
+        </li>
+
+        <li>
+            <NavLink to="/products" className={linkClass}>
+                <FaBoxOpen className="text-base-content/70" />
+                Browse Products
+            </NavLink>
+        </li>
+    </>
+
+
+    const adminLinks = <>
+        <li>
+            <NavLink to="/dashboard/admin-overview" className={linkClass}>
+                <FaHome className="text-base-content/70" />
+                Admin Overview
+            </NavLink>
+        </li>
+
+        <li>
+            <NavLink to="/dashboard/add-coupon" className={linkClass}>
+                <FaBoxOpen className="text-base-content/70" />
+                Create Coupon
+            </NavLink>
+        </li>
+
+        <li>
+            <NavLink to="/dashboard/all-coupons" className={linkClass}>
+                <FaBoxOpen className="text-base-content/70" />
+                Manage Coupons
+            </NavLink>
+        </li>
+
+        <li>
+            <NavLink to="/dashboard/users" className={linkClass}>
+                <FaBoxOpen className="text-base-content/70" />
+                Manage Users
+            </NavLink>
+        </li>
+    </>
+
+    const moderatorLinks = <>
+        <li>
+            <NavLink to="/dashboard/moderator-overview" className={linkClass}>
+                <FaHome className="text-base-content/70" />
+                Moderator Panel
+            </NavLink>
+        </li>
+
+        <li>
+            <NavLink to="/dashboard/review-table" className={linkClass}>
+                <FaBoxOpen className="text-base-content/70" />
+                Review Submissions
+            </NavLink>
+        </li>
+
+        <li>
+            <NavLink to="/products" className={linkClass}>
+                <FaBoxOpen className="text-base-content/70" />
+                View Products
+            </NavLink>
+        </li>
+    </>
+
+    const userLinks = <>
+        <li>
+            <NavLink to="/dashboard/user-overview" className={linkClass}>
+                <FaHome className="text-base-content/70" />
+                My Dashboard
+            </NavLink>
+        </li>
+        <li>
+            <NavLink to="/dashboard/my-profile" className={linkClass}>
+                <FaUser className="text-base-content/70" />
+                My Profile
+            </NavLink>
+        </li>
+
+        <li>
+            <NavLink to="/dashboard/add-product" className={linkClass}>
+                <FaHome className="text-base-content/70" />
+                Add Product
+            </NavLink>
+        </li>
+
+        <li>
+            <NavLink to="/dashboard/my-products" className={linkClass}>
+                <FaBoxOpen className="text-base-content/70" />
+                My Products
+            </NavLink>
+        </li>
+
+        <li>
+            <NavLink to="/dashboard/orders" className={linkClass}>
+                <FaBoxOpen className="text-base-content/70" />
+                My Subscriptions
+            </NavLink>
+        </li>
+    </>
+
 
     const handleLogout = () => {
         logOut().then(() => navigate("/"));
@@ -89,37 +197,11 @@ const DashboardLayout = () => {
 
                     {/* Menu Links */}
                     <ul className="menu gap-1">
-                        {/* Common */}
-                        <li>
-                            <NavLink to="/" className={linkClass}>
-                                <FaHome className="text-base-content/70" />
-                                Home
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <NavLink to="/products" className={linkClass}>
-                                <FaBoxOpen className="text-base-content/70" />
-                                Products
-                            </NavLink>
-                        </li>
+                        {commonLinks}
 
                         <div className="divider my-2"></div>
 
-                        {/* User links */}
-                        <li>
-                            <NavLink to="/dashboard/add-product" className={linkClass}>
-                                <FaPlusCircle className="text-base-content/70" />
-                                Add Product
-                            </NavLink>
-                        </li>
-
-                        <li>
-                            <NavLink to="/dashboard/my-products" className={linkClass}>
-                                <FaListAlt className="text-base-content/70" />
-                                My Products
-                            </NavLink>
-                        </li>
+                        {userLinks}
 
                         <div className="divider my-2"></div>
 
