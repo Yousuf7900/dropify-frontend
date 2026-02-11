@@ -95,19 +95,19 @@ const DashboardLayout = () => {
     const adminLinks = (
         <>
             <li>
-                <NavLink to="/dashboard/admin-overview" className={linkClass}>
+                <NavLink to="/dashboard" className={linkClass}>
                     <FaHome className="text-base-content/70" />
                     Admin Overview
                 </NavLink>
             </li>
             <li>
-                <NavLink to="/dashboard/statistics" className={linkClass}>
+                <NavLink to="/dashboard/admin-stats" className={linkClass}>
                     <FaBoxOpen className="text-base-content/70" />
                     Statistics
                 </NavLink>
             </li>
             <li>
-                <NavLink to="/dashboard/users" className={linkClass}>
+                <NavLink to="/dashboard/manage-users" className={linkClass}>
                     <FaUser className="text-base-content/70" />
                     Manage Users
                 </NavLink>
@@ -124,19 +124,19 @@ const DashboardLayout = () => {
     const moderatorLinks = (
         <>
             <li>
-                <NavLink to="/dashboard/moderator-overview" className={linkClass}>
+                <NavLink to="/dashboard" className={linkClass}>
                     <FaHome className="text-base-content/70" />
                     Moderator Overview
                 </NavLink>
             </li>
             <li>
-                <NavLink to="/dashboard/review-table" className={linkClass}>
+                <NavLink to="/dashboard/product-queue" className={linkClass}>
                     <FaBoxOpen className="text-base-content/70" />
-                    Review Queue
+                    Product Queue
                 </NavLink>
             </li>
             <li>
-                <NavLink to="/dashboard/reported-contents" className={linkClass}>
+                <NavLink to="/dashboard/reported-content" className={linkClass}>
                     <FaBoxOpen className="text-base-content/70" />
                     Reported Contents
                 </NavLink>
@@ -147,7 +147,7 @@ const DashboardLayout = () => {
     const userLinks = (
         <>
             <li>
-                <NavLink to="/dashboard/user-overview" className={linkClass}>
+                <NavLink to="/dashboard/" className={linkClass}>
                     <FaHome className="text-base-content/70" />
                     My Dashboard
                 </NavLink>
