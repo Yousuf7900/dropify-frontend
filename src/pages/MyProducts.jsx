@@ -1,12 +1,21 @@
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { FaEdit, FaTrashAlt, FaExternalLinkAlt } from "react-icons/fa";
+import { WithContext as ReactTags, SEPARATORS } from "react-tag-input";
+import "./tagStyles.css";
 import useSecure from "../hooks/useSecure";
 import useAuth from "../hooks/useAuth";
 import Swal from "sweetalert2";
+import { useForm } from "react-hook-form";
 
 const MyProducts = () => {
     const { user } = useAuth();
     const axiosSecure = useSecure();
+
+    const { register, handleSubmit, reset } = useForm();
+
+    const [selectedProduct, setSelectedProduct] = useState(null);
+    const [editTags, setEditTags] = useState([]);
 
     const { data: products = [], isLoading, refetch } = useQuery({
         queryKey: ["my-products", user?.email],
@@ -17,11 +26,24 @@ const MyProducts = () => {
         },
     });
 
+    useEffect(() => {
+        if (selectedProduct) {
+            reset({
+                productName: selectedProduct?.productName || "",
+                productImage: selectedProduct?.productImage || "",
+                productDesc: selectedProduct?.productDesc || "",
+                externalLink: selectedProduct?.externalLink || "",
+            });
+
+            setEditTags((selectedProduct?.tags || []).map((t) => ({ id: t, text: t })));
+        }
+    }, [selectedProduct, reset]);
+
     // delete product
     const handleDelete = (id, productName) => {
         Swal.fire({
             title: "Delete Product?",
-            html: `<p class="text-sm text-gray-500 mt-1"> You are about to permanently delete <strong>${productName}</strong>.</p><p class="text-xs text-gray-400 mt-2">cannot be undone.</p>`,
+            html: `<p class="text-sm text-gray-500 mt-1">You are about to permanently delete <strong>${productName}</strong>.</p><p class="text-xs text-gray-400 mt-2">This action cannot be undone.</p>`,
             icon: "warning",
             showCancelButton: true,
             confirmButtonText: "Yes, Delete",
@@ -35,39 +57,115 @@ const MyProducts = () => {
             customClass: {
                 popup: "rounded-2xl shadow-lg",
                 confirmButton: "px-5 py-2 rounded-lg font-medium",
-                cancelButton: "px-5 py-2 rounded-lg font-medium"
-            }
-        }).then(async (result) => {
+                cancelButton: "px-5 py-2 rounded-lg font-medium",
+            },
+        }).then((result) => {
             if (result.isConfirmed) {
-                try {
-                    const res = await axiosSecure.delete(`/products/${id}`);
-                    if (res.data?.deletedCount > 0) {
+                axiosSecure
+                    .delete(`/products/${id}`)
+                    .then(async (res) => {
+                        if (res.data?.deletedCount > 0) {
+                            await refetch();
+                            Swal.fire({
+                                title: "Deleted Successfully",
+                                text: "The product has been removed from your account.",
+                                icon: "success",
+                                timer: 1500,
+                                showConfirmButton: false,
+                                background: "#ffffff",
+                                borderRadius: "16px",
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        console.log(error);
                         Swal.fire({
-                            title: "Deleted Successfully",
-                            text: "The product has been removed from your account.",
-                            icon: "success",
-                            timer: 1500,
-                            showConfirmButton: false,
-                            background: "#ffffff",
-                            borderRadius: "16px"
+                            title: "Something went wrong",
+                            text: "Please try again later.",
+                            icon: "error",
+                            confirmButtonColor: "#2563eb",
+                            borderRadius: "16px",
                         });
-                        await refetch();
-                    }
-                } catch (error) {
-                    console.log(error);
-                    Swal.fire({
-                        title: "Something went wrong",
-                        text: "Please try again later.",
-                        icon: "error",
-                        confirmButtonColor: "#2563eb",
-                        borderRadius: "16px"
                     });
-                }
             }
         });
     };
 
+    // open update modal
+    const handleUpdate = (product) => {
+        setSelectedProduct(product);
+        document.getElementById("updateProductModal")?.showModal();
+    };
 
+
+    const handleEditTagAdd = (tag) => {
+        setEditTags([...editTags, tag]);
+    };
+
+    const handleEditTagDelete = (index) => {
+        setEditTags(editTags.filter((_, i) => i !== index));
+    };
+
+    // update submit
+    const onSubmit = (data) => {
+        if (!selectedProduct?._id) return;
+
+        if (editTags.length === 0) {
+            return Swal.fire({
+                icon: "warning",
+                title: "Tags Required",
+                text: "Please add at least one tag before updating.",
+                confirmButtonText: "Okay",
+                confirmButtonColor: "#4f46e5",
+            });
+        }
+
+        const tagValues = editTags.map((t) => t.text);
+
+        const updatedData = {
+            ...data,
+            tags: tagValues,
+            lastUpdate: new Date(),
+        };
+
+        axiosSecure.patch(`/products/${selectedProduct?._id}`, updatedData)
+            .then(async (res) => {
+                if (res.data?.modifiedCount > 0) {
+                    await refetch();
+                    document.getElementById("updateProductModal")?.close();
+
+                    Swal.fire({
+                        title: "Updated!",
+                        text: "Your product has been updated successfully.",
+                        icon: "success",
+                        timer: 1400,
+                        showConfirmButton: false,
+                        background: "#ffffff",
+                        customClass: {
+                            popup: "rounded-2xl shadow-lg"
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "info",
+                        title: "No changes",
+                        text: "Nothing was updated. Try changing some fields.",
+                        confirmButtonColor: "#4f46e5",
+                        borderRadius: "16px",
+                    });
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Update failed",
+                    text: "Please try again.",
+                    confirmButtonColor: "#2563eb",
+                    borderRadius: "16px",
+                });
+            });
+    };
 
     const formatDate = (iso) => {
         if (!iso) return "—";
@@ -121,6 +219,147 @@ const MyProducts = () => {
 
     return (
         <div className="p-2 md:p-6 space-y-5">
+            {/* ✅ Update Modal */}
+            <dialog id="updateProductModal" className="modal modal-bottom sm:modal-middle">
+                <div className="modal-box p-0 rounded-2xl max-w-3xl">
+                    {/* Header */}
+                    <div className="px-6 py-5 border-b bg-base-100 rounded-t-2xl">
+                        <div className="flex items-start justify-between gap-4">
+                            <div>
+                                <h3 className="text-xl font-bold tracking-tight">Update Product</h3>
+                                <p className="text-sm text-base-content/60 mt-1">
+                                    Edit your product details and save changes.
+                                </p>
+                            </div>
+
+                            <form method="dialog">
+                                <button className="btn btn-sm btn-ghost rounded-xl">✕</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    {/* Body */}
+                    <div className="px-6 py-6 space-y-6 bg-base-100">
+                        {/* Preview */}
+                        <div className="flex items-center gap-4 rounded-2xl border bg-base-200/30 p-4">
+                            <div className="w-14 h-14 rounded-xl overflow-hidden border bg-base-200 shrink-0">
+                                <img
+                                    src={
+                                        selectedProduct?.productImage ||
+                                        "https://images.unsplash.com/photo-1498050108023-c5249f4df085"
+                                    }
+                                    alt="preview"
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+
+                            <div className="min-w-0">
+                                <p className="font-semibold truncate">{selectedProduct?.productName || "Product name"}</p>
+                                <p className="text-xs text-base-content/60 truncate">{selectedProduct?.externalLink || "External link"}</p>
+                            </div>
+
+                            <div className="ml-auto">
+                                <span className="badge badge-ghost rounded-full">
+                                    Status: {selectedProduct?.status || "—"}
+                                </span>
+                            </div>
+                        </div>
+
+                        {/* Form */}
+                        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+                            {/* Product Name */}
+                            <div>
+                                <label className="block font-medium mb-1">
+                                    Product Name <span className="text-red-500">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter product name"
+                                    className="input input-bordered w-full rounded-xl"
+                                    {...register("productName", { required: true })}
+                                />
+                            </div>
+
+                            {/* Image + Link */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block font-medium mb-1">
+                                        Product Image URL <span className="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        placeholder="https://example.com/image.png"
+                                        className="input input-bordered w-full rounded-xl"
+                                        {...register("productImage", { required: true })}
+                                    />
+                                </div>
+
+                                <div>
+                                    <label className="block font-medium mb-1">External Link</label>
+                                    <input
+                                        type="text"
+                                        placeholder="https://yourproduct.com"
+                                        className="input input-bordered w-full rounded-xl"
+                                        {...register("externalLink")}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Description */}
+                            <div>
+                                <label className="block font-medium mb-1">
+                                    Description <span className="text-red-500">*</span>
+                                </label>
+                                <textarea
+                                    placeholder="Describe what your product does and who it's for"
+                                    className="textarea textarea-bordered w-full rounded-xl min-h-32"
+                                    {...register("productDesc", { required: true })}
+                                />
+                                <p className="text-xs text-base-content/50 mt-2">
+                                    Keep it short, clear, and user-focused.
+                                </p>
+                            </div>
+
+                            {/* Tags */}
+                            <div>
+                                <label className="block font-medium mb-2">Tags</label>
+                                <div className="rounded-xl border border-base-300 bg-base-100 p-3">
+                                    <ReactTags
+                                        tags={editTags}
+                                        separators={[SEPARATORS.ENTER, SEPARATORS.COMMA]}
+                                        handleDelete={handleEditTagDelete}
+                                        handleAddition={handleEditTagAdd}
+                                        inputFieldPosition="bottom"
+                                        placeholder="Type a tag and press Enter"
+                                        reset
+                                    />
+                                </div>
+                                <p className="text-sm text-base-content/60 mt-2">
+                                    Press Enter or comma to add tags. Click ✕ to remove.
+                                </p>
+                            </div>
+
+                            {/* Footer */}
+                            <div className="pt-2 flex flex-col sm:flex-row gap-3 sm:justify-end">
+                                <form method="dialog">
+                                    <button className="btn btn-outline rounded-xl w-full sm:w-auto">
+                                        Cancel
+                                    </button>
+                                </form>
+
+                                <button type="submit" className="btn btn-primary rounded-xl w-full sm:w-auto">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <form method="dialog" className="modal-backdrop">
+                    <button>close</button>
+                </form>
+            </dialog>
+
             {/* Header */}
             <div className="bg-base-100 border rounded-2xl p-5 shadow-sm">
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
@@ -139,7 +378,7 @@ const MyProducts = () => {
                 </div>
             </div>
 
-            {/* Table Container */}
+            {/* Table */}
             <div className="bg-base-100 border rounded-2xl shadow-sm overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="table table-zebra">
@@ -158,10 +397,8 @@ const MyProducts = () => {
                         <tbody>
                             {products.map((p, idx) => (
                                 <tr key={p?._id} className="hover:bg-base-200/30 transition">
-                                    {/* SL */}
                                     <td className="font-semibold text-base-content/70">{idx + 1}</td>
 
-                                    {/* Product */}
                                     <td>
                                         <div className="flex items-center gap-3">
                                             <div className="w-12 h-12 rounded-xl overflow-hidden border bg-base-200 shrink-0">
@@ -178,7 +415,6 @@ const MyProducts = () => {
                                                     {p?.productDesc}
                                                 </p>
 
-                                                {/* Tags */}
                                                 <div className="mt-2 flex flex-wrap gap-1.5">
                                                     {(p?.tags || []).slice(0, 3).map((tag, i) => (
                                                         <span
@@ -198,27 +434,22 @@ const MyProducts = () => {
                                         </div>
                                     </td>
 
-                                    {/* Status */}
                                     <td>{getStatusPill(p?.status)}</td>
 
-                                    {/* Votes */}
                                     <td className="text-right">
                                         <span className="font-semibold">{p?.votes ?? 0}</span>
                                     </td>
 
-                                    {/* Posted */}
                                     <td>
                                         <p className="text-sm font-medium">{formatDate(p?.createdAt)}</p>
                                         <p className="text-xs text-base-content/50">Created</p>
                                     </td>
 
-                                    {/* Updated */}
                                     <td>
                                         <p className="text-sm font-medium">{formatDate(p?.lastUpdate)}</p>
                                         <p className="text-xs text-base-content/50">Last update</p>
                                     </td>
 
-                                    {/* Actions */}
                                     <td className="text-right">
                                         <div className="flex justify-end gap-2">
                                             <a
@@ -233,7 +464,7 @@ const MyProducts = () => {
 
                                             <button
                                                 className="btn btn-sm btn-outline rounded-xl"
-                                                onClick={() => { }}
+                                                onClick={() => handleUpdate(p)}
                                                 title="Update"
                                             >
                                                 <FaEdit />
@@ -264,7 +495,6 @@ const MyProducts = () => {
                     </table>
                 </div>
 
-                {/* Footer Note */}
                 <div className="px-5 py-3 border-t bg-base-100">
                     <p className="text-xs text-base-content/60">
                         Tip: Approved products are visible publicly. Pending products are under review.

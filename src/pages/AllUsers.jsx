@@ -1,11 +1,39 @@
 import { useQuery } from "@tanstack/react-query";
 import { FaTrashAlt, FaBan, FaCheckCircle } from "react-icons/fa";
 import useSecure from "../hooks/useSecure";
+import Swal from "sweetalert2";
 
 const AllUsers = () => {
     const axiosSecure = useSecure();
 
-    const { data: users = [], isLoading } = useQuery({
+    const handleRole = (userEmail, newRole) => {
+        axiosSecure.patch(`/users/${userEmail}`, { role: newRole })
+            .then(async (res) => {
+                if (res.data.modifiedCount > 0) {
+                    await refetch();
+                    Swal.fire({
+                        icon: "success",
+                        title: "Role Updated",
+                        timer: 1200,
+                        showConfirmButton: false,
+                        customClass: {
+                            popup: "rounded-2xl shadow-lg"
+                        }
+                    });
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Update Failed",
+                    text: "Please try again."
+                });
+            });
+    };
+
+
+    const { data: users = [], isLoading, refetch } = useQuery({
         queryKey: ["users"],
         queryFn: async () => {
             const res = await axiosSecure.get("/users");
@@ -13,6 +41,9 @@ const AllUsers = () => {
         },
     });
 
+    const handleRefresh = () => {
+        refetch();
+    }
     if (isLoading) {
         return (
             <div className="p-6">
@@ -36,7 +67,7 @@ const AllUsers = () => {
                         </p>
                     </div>
 
-                    <button className="btn btn-sm btn-outline rounded-xl">
+                    <button onClick={() => handleRefresh} className="btn btn-sm btn-outline rounded-xl">
                         Refresh
                     </button>
                 </div>
@@ -95,7 +126,7 @@ const AllUsers = () => {
                                             <select
                                                 className="select select-bordered select-sm rounded-xl w-full"
                                                 defaultValue={user?.role}
-                                                onChange={() => { }}
+                                                onChange={(e) => { handleRole(user.email, e.target.value) }}
                                             >
                                                 <option value="user">user</option>
                                                 <option value="moderator">moderator</option>

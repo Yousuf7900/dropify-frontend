@@ -30,6 +30,7 @@ const DashboardLayout = () => {
             })
 
     }, [user?.email, axiosSecure])
+    console.log(userRole);
 
     const role = userRole || "user";
     const isAdmin = role === "admin";
