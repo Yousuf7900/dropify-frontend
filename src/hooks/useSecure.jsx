@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router";
 import useAuth from "./useAuth";
 
 const axiosSecure = axios.create({
-    baseURL: "https://backend-dropify.vercel.app", //http://localhost:5000
+    baseURL: "http://localhost:5000"
 });
 
 const useSecure = () => {
