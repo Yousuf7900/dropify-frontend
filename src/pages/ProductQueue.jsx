@@ -8,7 +8,6 @@ const ProductQueue = () => {
     const [queueProducts, setQueueProducts] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // ✅ Load: pending OR accepted but not featured
     const loadQueue = async () => {
         setLoading(true);
         try {
@@ -27,7 +26,6 @@ const ProductQueue = () => {
 
     useEffect(() => {
         loadQueue();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const getBadge = (p) => {
@@ -57,9 +55,6 @@ const ProductQueue = () => {
         let text = "";
         let confirmBtn = "";
 
-        // ✅ 2) Feature:
-        // pending -> accepted + featured
-        // accepted(not featured) -> featured only
         if (action === "feature") {
             payload =
                 product.status === "pending"
@@ -74,7 +69,6 @@ const ProductQueue = () => {
             confirmBtn = "Yes, Feature";
         }
 
-        // ✅ 3) Accept: only pending -> accepted
         if (action === "accept") {
             payload = { status: "accepted" };
             title = "Accept this product?";
@@ -82,7 +76,6 @@ const ProductQueue = () => {
             confirmBtn = "Yes, Accept";
         }
 
-        // reject (only for pending)
         if (action === "reject") {
             payload = { status: "rejected" };
             title = "Reject this product?";
@@ -235,17 +228,14 @@ const ProductQueue = () => {
                                                     Select action
                                                 </option>
 
-                                                {/* Always allow feature for items in queue (they're not featured yet) */}
-                                                <option value="feature">⭐ Make Featured</option>
+                                                <option value="feature">Make Featured</option>
 
-                                                {/* Accept only for pending */}
                                                 {p.status === "pending" && (
-                                                    <option value="accept">✅ Accept</option>
+                                                    <option value="accept">Accept</option>
                                                 )}
 
-                                                {/* Reject only for pending */}
                                                 {p.status === "pending" && (
-                                                    <option value="reject">❌ Reject</option>
+                                                    <option value="reject">Reject</option>
                                                 )}
                                             </select>
                                         </td>
